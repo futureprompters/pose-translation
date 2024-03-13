@@ -639,4 +639,3 @@ class ReferenceAttentionControl():
             for r in reader_gn_modules:
                 r.mean_bank.clear()
                 r.var_bank.clear()
-            

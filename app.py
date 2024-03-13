@@ -32,14 +32,14 @@ snapshot_download(repo_id="zcxu-eric/MagicAnimate", local_dir="./MagicAnimate")
 
 is_spaces = True if "SPACE_ID" in os.environ else False
 true_for_shared_ui = False #This will be true only if you are in a shared UI
-if(is_spaces):
-    true_for_shared_ui = True if "zcxu-eric/magicanimate" in os.environ['SPACE_ID'] else False
+# if(is_spaces):
+#     true_for_shared_ui = True if "zcxu-eric/magicanimate" in os.environ['SPACE_ID'] else False
 
 
 animator = MagicAnimate()
 
-def animate(reference_image, motion_sequence_state, seed=1, steps=25, guidance_scale=7.5):
-    return animator(reference_image, motion_sequence_state, seed, steps, guidance_scale)
+def animate(reference_image, reference_video_state, seed=1, steps=25, guidance_scale=7.5):
+    return animator(reference_image, reference_video_state, seed, steps, guidance_scale)
 
 with gr.Blocks() as demo:
 
@@ -49,13 +49,8 @@ with gr.Blocks() as demo:
         <a href="https://github.com/magic-research/magic-animate" style="margin-right: 20px; text-decoration: none; display: flex; align-items: center;">
         </a>
         <div>
-            <h1 >MagicAnimate: Temporally Consistent Human Image Animation using Diffusion Model</h1>
-            <h5 style="margin: 0;">If you like our project, please give us a star ✨ on Github for the latest update.</h5>
-            <div style="display: flex; justify-content: center; align-items: center; text-align: center;>
-                <a href="https://arxiv.org/abs/2311.16498"><img src="https://img.shields.io/badge/Arxiv-2311.16498-red"></a>
-                <a href='https://showlab.github.io/magicanimate'><img src='https://img.shields.io/badge/Project_Page-MagicAnimate-green' alt='Project Page'></a>
-                <a href='https://github.com/magic-research/magic-animate'><img src='https://img.shields.io/badge/Github-Code-blue'></a>
-            </div>
+            <h1 >PoseTranslation</h1>
+            <h5 style="margin: 0;">vid2densepose+MagicAnimate</h5>
         </div>
         </div>
         """)
@@ -63,7 +58,7 @@ with gr.Blocks() as demo:
 
     with gr.Row():
         reference_image  = gr.Image(label="Reference Image")
-        motion_sequence  = gr.Video(format="mp4", label="Motion Sequence",max_length=5)
+        reference_video  = gr.Video(format="mp4", label="Pose Video",max_length=5)
 
         with gr.Column():
             random_seed         = gr.Textbox(label="Random seed", value=1, info="default: -1")
@@ -80,10 +75,10 @@ with gr.Blocks() as demo:
         return np.array(Image.fromarray(image).resize((size, size)))
 
     # when user uploads a new video
-    motion_sequence.upload(
+    reference_video.upload(
         read_video,
-        motion_sequence,
-        motion_sequence,
+        reference_video,
+        reference_video,
         queue=False
     )
     # when `first_frame` is updated
@@ -96,7 +91,7 @@ with gr.Blocks() as demo:
     # when the `submit` button is clicked
     submit.click(
         animate,
-        [reference_image, motion_sequence, random_seed, sampling_steps, guidance_scale],
+        [reference_image, reference_video, random_seed, sampling_steps, guidance_scale],
         animation
     )
 
@@ -105,16 +100,24 @@ with gr.Blocks() as demo:
     gr.Examples(
         fn=animate,
         examples=[
-            ["inputs/applications/source_image/monalisa.png", "inputs/applications/driving/densepose/running.mp4"],
-            ["inputs/applications/source_image/demo4.png", "inputs/applications/driving/densepose/demo4.mp4"],
-            ["inputs/applications/source_image/dalle2.jpeg", "inputs/applications/driving/densepose/running2.mp4"],
-            ["inputs/applications/source_image/dalle8.jpeg", "inputs/applications/driving/densepose/dancing2.mp4"],
-            ["inputs/applications/source_image/multi1_source.png", "inputs/applications/driving/densepose/multi_dancing.mp4"],
+            ["inputs/applications/source_image/im1.jpeg"],
+            ["inputs/applications/source_image/im2.png"],
+            ["inputs/applications/source_image/im3.jpg"],
         ],
-        inputs=[reference_image, motion_sequence],
+        inputs=[reference_image],
+        outputs=animation,
+        cache_examples=true_for_shared_ui
+    )
+    gr.Examples(
+        fn=animate,
+        examples=[
+            ["inputs/applications/reference_video/vid1.mp4"],
+            ["inputs/applications/reference_video/vid2.mp4"],
+            ["inputs/applications/reference_video/vid3.mp4"],
+        ],
+        inputs=[reference_video],
         outputs=animation,
         cache_examples=true_for_shared_ui
     )
 
-# demo.queue(max_size=15, api_open=False)
 demo.launch(share=True, show_api=False)
