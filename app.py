@@ -1,13 +1,3 @@
-# Copyright 2023 ByteDance and/or its affiliates.
-#
-# Copyright (2023) MagicAnimate Authors
-#
-# ByteDance, its affiliates and licensors retain all intellectual
-# property and proprietary rights in and to this material, related
-# documentation and any modifications thereto. Any use, reproduction,
-# disclosure or distribution of this material and related documentation
-# without an express license agreement from ByteDance or
-# its affiliates is strictly prohibited.
 import subprocess
 import sys
 
@@ -31,9 +21,7 @@ snapshot_download(repo_id="stabilityai/sd-vae-ft-mse", local_dir="./sd-vae-ft-ms
 snapshot_download(repo_id="zcxu-eric/MagicAnimate", local_dir="./MagicAnimate")
 
 is_spaces = True if "SPACE_ID" in os.environ else False
-true_for_shared_ui = False #This will be true only if you are in a shared UI
-# if(is_spaces):
-#     true_for_shared_ui = True if "zcxu-eric/magicanimate" in os.environ['SPACE_ID'] else False
+true_for_shared_ui = False
 
 
 animator = MagicAnimate()
@@ -54,17 +42,22 @@ with gr.Blocks() as demo:
         </div>
         </div>
         """)
-    animation = gr.Video(format="mp4", label="Animation Results", autoplay=True)
+    
 
     with gr.Row():
         reference_image  = gr.Image(label="Reference Image")
         reference_video  = gr.Video(format="mp4", label="Pose Video",max_length=5)
+        animation = gr.Video(
+            format="mp4",
+            label="Animation Results",
+            autoplay=True,
+        )
 
-        with gr.Column():
-            random_seed         = gr.Textbox(label="Random seed", value=1, info="default: -1")
-            sampling_steps      = gr.Textbox(label="Sampling steps", value=25, info="default: 25")
-            guidance_scale      = gr.Textbox(label="Guidance scale", value=7.5, info="default: 7.5")
-            submit              = gr.Button("Animate")
+    with gr.Row():
+        random_seed         = gr.Textbox(label="Random seed", value=1, info="default: -1")
+        sampling_steps      = gr.Textbox(label="Sampling steps", value=25, info="default: 25")
+        guidance_scale      = gr.Textbox(label="Guidance scale", value=7.5, info="default: 7.5")
+        submit              = gr.Button("Animate")
 
     def read_video(video):
         reader = imageio.get_reader(video)
@@ -74,28 +67,24 @@ with gr.Blocks() as demo:
     def read_image(image, size=512):
         return np.array(Image.fromarray(image).resize((size, size)))
 
-    # when user uploads a new video
     reference_video.upload(
         read_video,
         reference_video,
         reference_video,
         queue=False
     )
-    # when `first_frame` is updated
     reference_image.upload(
         read_image,
         reference_image,
         reference_image,
         queue=False
     )
-    # when the `submit` button is clicked
     submit.click(
         animate,
         [reference_image, reference_video, random_seed, sampling_steps, guidance_scale],
         animation
     )
 
-    # Examples
     gr.Markdown("## Examples")
     gr.Examples(
         fn=animate,
@@ -103,6 +92,7 @@ with gr.Blocks() as demo:
             ["inputs/applications/source_image/im1.jpeg"],
             ["inputs/applications/source_image/im2.png"],
             ["inputs/applications/source_image/im3.jpg"],
+            ["inputs/applications/source_image/im4.png"]
         ],
         inputs=[reference_image],
         outputs=animation,
@@ -114,6 +104,7 @@ with gr.Blocks() as demo:
             ["inputs/applications/reference_video/vid1.mp4"],
             ["inputs/applications/reference_video/vid2.mp4"],
             ["inputs/applications/reference_video/vid3.mp4"],
+            ["inputs/applications/reference_video/vid4.mp4"],
         ],
         inputs=[reference_video],
         outputs=animation,
