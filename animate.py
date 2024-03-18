@@ -185,12 +185,12 @@ class MagicAnimate():
 
             source_images = np.array([source_image] * original_length)
             source_images = rearrange(torch.from_numpy(source_images), "t h w c -> 1 c t h w") / 255.0
-            samples_per_video.append(source_images)
+            #samples_per_video.append(source_images)
             
             control = control / 255.0
             control = rearrange(control, "t h w c -> 1 c t h w")
             control = torch.from_numpy(control)
-            samples_per_video.append(control[:, :, :original_length])
+            #samples_per_video.append(control[:, :, :original_length])
 
             samples_per_video.append(sample[:, :, :original_length])
 

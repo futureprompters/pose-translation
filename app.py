@@ -4,6 +4,7 @@ import sys
 subprocess.check_call([sys.executable, "-m", "pip", "install", 'git+https://github.com/facebookresearch/detectron2.git@3ff5dd1cff4417af07097064813c9f28d7461d3c'])
 subprocess.check_call([sys.executable, "-m", "pip", "install", 'git+https://github.com/facebookresearch/detectron2@main#subdirectory=projects/DensePose'])
 
+
 import argparse
 import imageio
 import numpy as np
@@ -15,6 +16,7 @@ from subprocess import PIPE, run
 from animate import MagicAnimate
 
 from huggingface_hub import snapshot_download
+
 
 snapshot_download(repo_id="runwayml/stable-diffusion-v1-5", local_dir="./stable-diffusion-v1-5")
 snapshot_download(repo_id="stabilityai/sd-vae-ft-mse", local_dir="./sd-vae-ft-mse")
@@ -88,6 +90,7 @@ with gr.Blocks() as demo:
     gr.Markdown("## Examples")
     gr.Examples(
         fn=animate,
+        label="Reference image examples:",
         examples=[
             ["inputs/applications/source_image/im1.jpeg"],
             ["inputs/applications/source_image/im2.png"],
@@ -100,11 +103,11 @@ with gr.Blocks() as demo:
     )
     gr.Examples(
         fn=animate,
+        label="Pose video examples:",
         examples=[
             ["inputs/applications/reference_video/vid1.mp4"],
             ["inputs/applications/reference_video/vid2.mp4"],
             ["inputs/applications/reference_video/vid3.mp4"],
-            ["inputs/applications/reference_video/vid4.mp4"],
         ],
         inputs=[reference_video],
         outputs=animation,
